@@ -19,3 +19,5 @@
 
 1. Главная страница(mainpage.html)
 2. Каталог туров(tours.html)
+
+Mock-up: https://www.figma.com/design/ijBhIhnfUvonDWFippo7Zi/Mock-up-2rism?node-id=0-1&t=4V6aJo1OdAaZaj8B-1
