@@ -18,6 +18,14 @@
 Карта страниц:
 
 1. Главная страница(mainpage.html)
-2. Каталог туров(tours.html)
+2. Окно входа и регистрации(sign.hmtl)
+3. Панель администратора(administrator.hmtl)
+4. Страница регистрации(register.html)
+5. Личный кабинет(account.html)
+6. Каталог туров(tours.html)
+7. Информация о туре(inftour.html)
+8. Корзина(basket.html)
+9. Страница оплаты(payment.html)
+10. Подтверждение заказа(approve.html)
 
-Mock-up: https://www.figma.com/design/ijBhIhnfUvonDWFippo7Zi/Mock-up-2rism?node-id=0-1&t=4V6aJo1OdAaZaj8B-1
+Mock-up: https://www.figma.com/design/h6GQjpChAz1o1HqIu0PfDO/Mock-up--2rism-?node-id=0-1&p=f&t=dk4YN5ACtHOnc9fF-0
