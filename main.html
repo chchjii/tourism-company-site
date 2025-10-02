@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>2rism – Поиск туров</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <h1 class="logo">2rism</h1>
+      <nav class="nav">
+        <ul class="nav__list">
+          <li><a href="#">Поиск</a></li>
+          <li><a href="#">Личный кабинет</a></li>
+          <li><a href="#">Помощь</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="search">
+      <h2 class="search__title">Найдите самые выгодные путевки!</h2>
+      <form class="search__form">
+        <div class="form__row">
+          <label>
+            Откуда
+            <input type="text" name="from" placeholder="Город отправления">
+          </label>
+          <label>
+            Куда
+            <input type="text" name="to" placeholder="Пункт назначения">
+          </label>
+        </div>
+        <div class="form__row">
+          <label>
+            Транспорт
+            <select name="transport">
+              <option>Самолёт</option>
+              <option>Поезд</option>
+              <option>Автобус</option>
+            </select>
+          </label>
+          <label>
+            Время пребывания
+            <input type="number" name="days" placeholder="Количество дней">
+          </label>
+        </div>
+        <button type="submit" class="btn">Найти тур</button>
+      </form>
+    </section>
+  </main>
+</body>
+</html>
