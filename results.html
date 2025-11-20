@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>2rism – Результаты поиска</title>
+    <link rel="stylesheet" href="/styles.css">
+    <!-- Подключаем шрифт Inter, который используется в макете -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<!-- Шапка (такая же, как на главной) -->
+<header class="header">
+    <div class="container header__inner">
+        <h1 class="logo">2rism</h1>
+        <nav class="nav">
+            <ul class="nav__list">
+                <li><a href="#">Поиск</a></li>
+                <li><a href="#">Личный кабинет</a></li>
+                <li><a href="#">Помощь</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+<div class="container results-page">
+    <!-- Левая колонка с фильтрами -->
+    <aside class="filters-sidebar">
+        <h3 class="filters-title">Фильтры</h3>
+        <div class="filter-group">
+            <p class="filter-label">По длине:</p>
+            <label class="filter-checkbox">
+                <input type="checkbox"> Короткие
+            </label>
+            <label class="filter-checkbox">
+                <input type="checkbox"> Длинные
+            </label>
+        </div>
+        <div class="filter-group">
+            <p class="filter-label">Цена:</p>
+            <div class="price-inputs">
+                <label>От: <input type="number" placeholder="100"></label>
+                <label>До: <input type="number" placeholder="1000"></label>
+            </div>
+        </div>
+        <div class="sidebar-image-placeholder"></div>
+    </aside>
+
+    <!-- Основная часть с результатами -->
+    <main class="results-main">
+        <div class="sort-bar">
+            <span>Сортировать по: <strong>цене</strong></span>
+        </div>
+
+        <div class="results-list">
+            <!-- Карточка тура №1 -->
+            <div class="result-card">
+                <div class="card-info">
+                    <h4 class="card-title">Минск → Москва</h4>
+                    <p class="card-duration">5 дней</p>
+                </div>
+                <div class="card-price-action">
+                    <span class="card-price">450 BYN</span>
+                    <a href="#" class="card-button">Выбрать</a>
+                </div>
+            </div>
+
+            <!-- Карточка тура №2 -->
+            <div class="result-card">
+                <div class="card-info">
+                    <h4 class="card-title">Санкт-Петербург → Рим</h4>
+                    <p class="card-duration">8 дней</p>
+                </div>
+                <div class="card-price-action">
+                    <span class="card-price">530 BYN</span>
+                    <a href="#" class="card-button">Выбрать</a>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>
