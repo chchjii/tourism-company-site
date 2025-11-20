@@ -251,3 +251,79 @@ input, select {
 .card-button:hover {
     background: #0772c8;
 }
+
+/* --- Стили для активного пункта меню --- */
+.nav__list a.active {
+    color: #0984E3;
+    font-weight: 700;
+}
+
+
+/* --- Стили для страницы входа --- */
+.login-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 60px;
+    padding-bottom: 60px;
+    min-height: 80vh;
+}
+
+.login-form-container {
+    background: #FFFFFF;
+    padding: 48px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 480px;
+    text-align: center;
+}
+
+.login-title {
+    font-size: 24px;
+    font-weight: 400;
+    color: #2D3436;
+    margin-bottom: 32px;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.login-form input {
+    background: #F0F0F0;
+    border: 1px solid #E0E0E0;
+    border-radius: 6px;
+    padding: 16px;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+}
+
+.btn-login {
+    background: #0984E3;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 6px;
+    padding: 16px;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-login:hover {
+    background: #0772c8;
+}
+
+.register-link {
+    color: #0984E3;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.register-link:hover {
+    text-decoration: underline;
+}
