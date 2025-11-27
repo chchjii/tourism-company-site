@@ -327,3 +327,117 @@ input, select {
 .register-link:hover {
     text-decoration: underline;
 }
+
+/* ========================================= */
+/* АДАПТИВНОСТЬ (MEDIA QUERIES)              */
+/* ========================================= */
+
+/* 1. Планшеты и маленькие ноутбуки (до 1024px) */
+@media (max-width: 1024px) {
+    .container {
+        padding: 0 24px; /* Чуть больше отступов по бокам */
+    }
+
+    /* Уменьшаем ширину поиска на главной */
+    .search {
+        max-width: 90%;
+    }
+}
+
+/* 2. Мобильные телефоны (до 768px) */
+@media (max-width: 768px) {
+
+    /* --- ШАПКА --- */
+    .header__inner {
+        flex-direction: column; /* Логотип и меню друг под другом */
+        gap: 16px;
+    }
+
+    .nav__list {
+        gap: 16px;
+        flex-wrap: wrap; /* Если пункты не влезут, перенесутся */
+        justify-content: center;
+        padding: 0;
+    }
+
+    /* --- ГЛАВНАЯ СТРАНИЦА --- */
+    .search {
+        padding: 24px 16px; /* Меньше внутренние отступы */
+    }
+
+    .form__row {
+        flex-direction: column; /* Поля формы друг под другом */
+        gap: 12px;
+    }
+
+    .btn {
+        width: 100%; /* Кнопка на всю ширину */
+    }
+
+    /* --- СТРАНИЦА РЕЗУЛЬТАТОВ --- */
+    .results-page {
+        flex-direction: column; /* Фильтры сверху, результаты снизу */
+    }
+
+    .filters-sidebar {
+        width: 100%; /* Фильтры на всю ширину */
+    }
+
+    /* Скрываем картинку в фильтрах на мобильных, чтобы не занимала место */
+    .sidebar-image-placeholder {
+        display: none;
+    }
+
+    .price-inputs {
+        justify-content: space-between;
+    }
+
+    .price-inputs input {
+        width: 45%; /* Поля цены растягиваем */
+    }
+
+    .result-card {
+        flex-direction: column; /* Карточка тура тоже вертикальная */
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .card-price-action {
+        width: 100%;
+        display: flex;
+        justify-content: space-between; /* Цена слева, кнопка справа */
+        align-items: center;
+    }
+}
+
+/* 3. Маленькие телефоны (до 480px) */
+@media (max-width: 480px) {
+
+    .logo {
+        font-size: 20px;
+    }
+
+    .search__title {
+        font-size: 18px;
+    }
+
+    /* --- СТРАНИЦА ВХОДА --- */
+    .login-form-container {
+        padding: 24px 16px;
+        box-shadow: none; /* Убираем тень на мобильных для чистоты */
+        background: transparent; /* Или оставляем белым */
+    }
+
+    .login-title {
+        font-size: 20px;
+    }
+
+    /* Делаем навигацию компактнее */
+    .nav__list {
+        gap: 10px;
+    }
+
+    .nav__list a {
+        font-size: 14px;
+    }
+}
