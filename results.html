@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <title>2rism – Результаты поиска</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Стили для независимого скролла панелей */
+        .scrollable-panel {
+            height: calc(100vh - 180px);
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .scrollable-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .scrollable-panel::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .scrollable-panel::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .scrollable-panel::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .back-to-search {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border: 1px solid var(--primary-color);
+            border-radius: var(--radius-medium);
+            transition: all 0.2s;
+        }
+
+        .back-to-search:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="container header__inner">
+            <h1 class="logo">2rism</h1>
+            <nav class="nav">
+                <ul class="nav__list">
+                    <li><a href="/search">Поиск</a></li>
+                    <li><a href="/account">Личный кабинет</a></li>
+                    <li><a href="#" onclick="logout(); return false;">Выйти</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container results-page">
+        <!-- Левая колонка с фильтрами (фиксированная) -->
+        <aside class="filters-sidebar">
+            <div class="scrollable-panel">
+                <div class="results-header">
+                    <h3 class="filters-title">Фильтры и сортировка</h3>
+                    <a href="/search" class="back-to-search">
+                        ← Новый поиск
+                    </a>
+                </div>
+
+                <!-- Активные фильтры -->
+                <div id="active-filters" class="active-filters" style="display: none;">
+                    <strong>Активные фильтры:</strong>
+                    <div id="filter-tags"></div>
+                    <button id="clear-all-filters" class="clear-filters">Сбросить все</button>
+                </div>
+
+                <!-- Сортировка по длине -->
+                <div class="filter-group">
+                    <p class="filter-label">Сортировка по длине тура:</p>
+                    <label class="filter-radio">
+                        <input type="radio" name="sort_days" value="all" checked> Все туры
+                    </label>
+                    <label class="filter-radio">
+                        <input type="radio" name="sort_days" value="days_asc"> По возрастанию
+                    </label>
+                    <label class="filter-radio">
+                        <input type="radio" name="sort_days" value="days_desc"> По убыванию
+                    </label>
+                </div>
+
+                <!-- Сортировка по стоимости -->
+                <div class="filter-group">
+                    <p class="filter-label">Сортировка по стоимости:</p>
+                    <label class="filter-radio">
+                        <input type="radio" name="price_sort" value="price_asc" checked> По возрастанию
+                    </label>
+                    <label class="filter-radio">
+                        <input type="radio" name="price_sort" value="price_desc"> По убыванию
+                    </label>
+                </div>
+
+                <!-- Фильтр по цене -->
+                <div class="filter-group">
+                    <p class="filter-label">Цена (BYN):</p>
+                    <div class="price-inputs">
+                        <label>От: <input type="number" id="minPrice" placeholder="0" min="0" value="0"></label>
+                        <label>До: <input type="number" id="maxPrice" placeholder="10000" min="0" value="10000"></label>
+                    </div>
+                </div>
+
+                <!-- Фильтр по длительности -->
+                <div class="filter-group">
+                    <p class="filter-label">Длительность тура (дней):</p>
+                    <div class="price-inputs">
+                        <label>От: <input type="number" id="minDays" placeholder="1" min="1" value="1"></label>
+                        <label>До: <input type="number" id="maxDays" placeholder="30" min="1" value="30"></label>
+                    </div>
+                </div>
+
+                <!-- Горящие туры (ИСПРАВЛЕНО: radio на checkbox) -->
+                <div class="filter-group">
+                    <p class="filter-label">Дополнительно:</p>
+                    <label class="filter-checkbox">
+                        <input type="checkbox" id="hot-tours-checkbox" name="hot_tours"> Только горящие туры
+                    </label>
+                </div>
+
+                <button id="apply-filters" class="btn" style="width: 100%; margin-top: 10px;">Применить фильтры</button>
+
+                <div class="sidebar-image-placeholder"></div>
+            </div>
+        </aside>
+
+        <!-- Основная часть с результатами -->
+        <main class="results-main">
+            <div class="scrollable-panel">
+                <div class="sort-bar">
+                    <span id="results-count">Загрузка...</span>
+                </div>
+
+                <div class="results-list" id="tours-list">
+                    <!-- Туры будут загружаться динамически -->
+                    <div class="loading">Загрузка туров...</div>
+                </div>
+            </div>
+        </main>
+
+        <script>
+            // Глобальные переменные для фильтров
+            let currentFilters = {
+                from: '',
+                to: '',
+                transport: '',
+                sort_days: 'all',
+                sort_price: 'price_asc',
+                minPrice: '',
+                maxPrice: '',
+                minDays: '',
+                maxDays: '',
+                hot_tours: ''
+            };
+
+            // Загрузка туров при загрузке страницы
+            document.addEventListener('DOMContentLoaded', function () {
+                console.log('🔄 Страница результатов загружена');
+
+                // Получаем параметры из URL
+                const urlParams = new URLSearchParams(window.location.search);
+                console.log('🔍 Параметры URL:', Object.fromEntries(urlParams.entries()));
+
+                // Базовые параметры поиска
+                currentFilters.from = urlParams.get('from') || '';
+                currentFilters.to = urlParams.get('to') || '';
+                currentFilters.transport = urlParams.get('transport') || '';
+
+                // Параметры сортировки
+                currentFilters.sort_days = urlParams.get('sort_days') || 'all';
+                currentFilters.sort_price = urlParams.get('price_sort') || 'price_asc';
+
+                // Фильтры по диапазонам
+                currentFilters.minPrice = urlParams.get('minPrice') || '';
+                currentFilters.maxPrice = urlParams.get('maxPrice') || '';
+                currentFilters.minDays = urlParams.get('minDays') || '';
+                currentFilters.maxDays = urlParams.get('maxDays') || '';
+                currentFilters.hot_tours = urlParams.get('hot_tours') || '';
+
+                console.log('📋 Текущие фильтры после парсинга URL:', currentFilters);
+
+                // Устанавливаем значения фильтров из URL
+                setFilterValuesFromURL();
+
+                // Загружаем туры
+                loadTours();
+
+                // Обновляем активные фильтры
+                updateActiveFilters();
+
+                // Обработчик кнопки применения фильтров
+                document.getElementById('apply-filters').addEventListener('click', function () {
+                    console.log('🎯 Нажата кнопка "Применить фильтры"');
+                    applyFilters();
+                });
+
+                // Обработчик сброса фильтров
+                document.getElementById('clear-all-filters').addEventListener('click', function () {
+                    console.log('🔄 Нажата кнопка "Сбросить все"');
+                    clearAllFilters();
+                });
+
+                // Обработчики радио-кнопок сортировки по длительности (ИСПРАВЛЕНО имя)
+                document.querySelectorAll('input[name="sort_days"]').forEach(radio => {
+                    radio.addEventListener('change', function () {
+                        console.log(`📅 Изменена сортировка по длине: ${this.value}`);
+                        currentFilters.sort_days = this.value;
+                    });
+                });
+
+                // Обработчики радио-кнопок сортировки по цене
+                document.querySelectorAll('input[name="price_sort"]').forEach(radio => {
+                    radio.addEventListener('change', function () {
+                        console.log(`💰 Изменена сортировка по цене: ${this.value}`);
+                        currentFilters.sort_price = this.value;
+                    });
+                });
+
+                // Обработчик чекбокса горящих туров (ИСПРАВЛЕНО с radio на checkbox)
+                const hotToursCheckbox = document.getElementById('hot-tours-checkbox');
+                hotToursCheckbox.addEventListener('change', function () {
+                    console.log(`🔥 Изменен фильтр горящих туров: ${this.checked ? 'hot_only' : ''}`);
+                    currentFilters.hot_tours = this.checked ? 'hot_only' : '';
+                });
+            });
+
+            // Установка значений фильтров из URL
+            function setFilterValuesFromURL() {
+                console.log('⚙️ Установка значений фильтров из URL');
+
+                // Радио-кнопки сортировки по длине (ИСПРАВЛЕНО имя)
+                const daysSortRadio = document.querySelector(`input[name="sort_days"][value="${currentFilters.sort_days}"]`);
+                if (daysSortRadio) {
+                    daysSortRadio.checked = true;
+                    console.log(`  ✓ Установлен radio sort_days: ${currentFilters.sort_days}`);
+                } else {
+                    console.log(`  ✗ Radio sort_days не найден: ${currentFilters.sort_days}`);
+                }
+
+                // Радио-кнопки сортировки по цене
+                const priceSortRadio = document.querySelector(`input[name="price_sort"][value="${currentFilters.sort_price}"]`);
+                if (priceSortRadio) {
+                    priceSortRadio.checked = true;
+                    console.log(`  ✓ Установлен radio price_sort: ${currentFilters.sort_price}`);
+                } else {
+                    console.log(`  ✗ Radio price_sort не найден: ${currentFilters.sort_price}`);
+                }
+
+                // Чекбокс горящих туров (ИСПРАВЛЕНО с radio на checkbox)
+                const hotToursCheckbox = document.getElementById('hot-tours-checkbox');
+                if (currentFilters.hot_tours === 'hot_only') {
+                    hotToursCheckbox.checked = true;
+                    console.log(`  ✓ Установлен checkbox hot_tours: горящие`);
+                } else {
+                    hotToursCheckbox.checked = false;
+                    console.log(`  ✗ Checkbox hot_tours: все туры`);
+                }
+
+                // Поля диапазонов
+                if (currentFilters.minPrice) {
+                    document.getElementById('minPrice').value = currentFilters.minPrice;
+                    console.log(`  ✓ Установлен minPrice: ${currentFilters.minPrice}`);
+                }
+                if (currentFilters.maxPrice) {
+                    document.getElementById('maxPrice').value = currentFilters.maxPrice;
+                    console.log(`  ✓ Установлен maxPrice: ${currentFilters.maxPrice}`);
+                }
+                if (currentFilters.minDays) {
+                    document.getElementById('minDays').value = currentFilters.minDays;
+                    console.log(`  ✓ Установлен minDays: ${currentFilters.minDays}`);
+                }
+                if (currentFilters.maxDays) {
+                    document.getElementById('maxDays').value = currentFilters.maxDays;
+                    console.log(`  ✓ Установлен maxDays: ${currentFilters.maxDays}`);
+                }
+            }
+
+            // Функция загрузки туров
+            async function loadTours() {
+                console.log('🔄 Начало загрузки туров');
+
+                const toursList = document.getElementById('tours-list');
+                toursList.innerHTML = '<div class="loading">Загрузка туров...</div>';
+
+                // Формируем URL с параметрами
+                const params = new URLSearchParams();
+                let paramCount = 0;
+
+                for (const [key, value] of Object.entries(currentFilters)) {
+                    if (value !== '' && value !== 'all') {
+                        params.append(key, value.toString());
+                        paramCount++;
+                    }
+                }
+
+                const url = `/api/tours?${params.toString()}`;
+                console.log(`🔗 Запрашиваем URL: ${url}`);
+                console.log(`📊 Количество параметров: ${paramCount}`);
+
+                try {
+                    console.log('⏳ Отправка запроса к API...');
+                    const response = await fetch(url);
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ошибка! Статус: ${response.status}`);
+                    }
+
+                    const tours = await response.json();
+                    console.log(`✅ Получено туров: ${tours.length}`);
+
+                    displayTours(tours);
+
+                    // Обновляем счетчик
+                    const countText = tours.length === 0 ? 'Туры не найдены' : `Найдено туров: ${tours.length}`;
+                    document.getElementById('results-count').textContent = countText;
+
+                    // Обновляем URL без перезагрузки страницы
+                    updateURL();
+
+                    // Обновляем активные фильтры
+                    updateActiveFilters();
+
+                } catch (error) {
+                    console.error('❌ Ошибка загрузки туров:', error);
+                    toursList.innerHTML = `
+                <div class="error">
+                    <h3>Ошибка загрузки туров</h3>
+                    <p>${error.message}</p>
+                    <p>Пожалуйста, проверьте консоль сервера и повторите попытку.</p>
+                </div>
+            `;
+                }
+            }
+
+            // Функция отображения туров
+            function displayTours(tours) {
+                const toursList = document.getElementById('tours-list');
+
+                if (tours.length === 0) {
+                    console.log('📭 Туры не найдены');
+                    toursList.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: #666;">
+                <h3>Туры не найдены</h3>
+                <p>Попробуйте изменить параметры поиска или фильтры</p>
+                <button onclick="clearAllFilters()" class="btn" style="margin-top: 20px;">
+                    Сбросить фильтры
+                </button>
+            </div>
+        `;
+                    return;
+                }
+
+                console.log(`🎨 Отображение ${tours.length} туров`);
+                toursList.innerHTML = '';
+
+                tours.forEach((tour, index) => {
+                    const tourCard = document.createElement('div');
+                    tourCard.className = 'result-card';
+
+                    // Форматируем даты
+                    const startDate = tour.start_date ? new Date(tour.start_date).toLocaleDateString('ru-RU') : 'Уточняется';
+                    const endDate = tour.end_date ? new Date(tour.end_date).toLocaleDateString('ru-RU') : 'Уточняется';
+
+                    // Определяем бейдж для горящих туров
+                    const hotBadge = tour.is_hot ? '<span class="hot-badge">🔥 ГОРЯЩИЙ</span>' : '';
+
+                    // Определяем доступность тура
+                    const isAvailable = tour.is_available !== false; // Безопасная проверка
+
+                    tourCard.innerHTML = `
+            <div class="card-info">
+                <h3>${tour.title} ${hotBadge}</h3>
+                <div class="card-details">
+                    <p><strong>Маршрут:</strong> ${tour.from_city} → ${tour.to_city}</p>
+                    <p><strong>Транспорт:</strong> ${tour.transport}</p>
+                    <p><strong>Длительность:</strong> ${tour.days} ${getDaysText(tour.days)}</p>
+                    <p><strong>Даты:</strong> ${startDate} - ${endDate}</p>
+                    ${tour.description ? `<p>${tour.description.substring(0, 100)}...</p>` : ''}
+                </div>
+            </div>
+            <div class="card-price-action">
+                <div class="price-block">
+                    <span class="card-price">${parseFloat(tour.price).toFixed(2)} BYN</span>
+                    <span class="price-per-day">${(parseFloat(tour.price) / tour.days).toFixed(2)} BYN/день</span>
+                </div>
+                ${isAvailable ?
+                            `<button class="card-button" onclick="reserveTour(${tour.id})" 
+                             data-tour="${tour.id}">
+                        Добавить в корзину
+                     </button>` :
+                            `<button class="card-button reserved" disabled>
+                        🔒 Зарезервировано
+                     </button>`
+                        }
+            </div>
+        `;
+
+                    toursList.appendChild(tourCard);
+                });
+            }
+
+            // Вспомогательная функция для правильного склонения "дней"
+            function getDaysText(days) {
+                if (days % 10 === 1 && days % 100 !== 11) return 'день';
+                if (days % 10 >= 2 && days % 10 <= 4 && (days % 100 < 10 || days % 100 >= 20)) return 'дня';
+                return 'дней';
+            }
+
+
+
+            // Функция резервирования тура
+            async function reserveTour(tourId) {
+                try {
+                    // Сначала получаем текущего пользователя
+                    const userResponse = await fetch('/api/user/current');
+                    if (!userResponse.ok) {
+                        alert('Пожалуйста, войдите в систему для резервирования туров');
+                        window.location.href = '/login';
+                        return;
+                    }
+
+                    const user = await userResponse.json();
+                    const userId = user.id;
+
+                    if (!confirm(`Зарезервировать этот тур на 15 минут?\nПосле резервирования тур станет недоступен для других пользователей.`)) {
+                        return;
+                    }
+
+                    console.log(`Резервирование тура ${tourId} пользователем ${userId}`);
+
+                    const response = await fetch('/api/reserve', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ tourId, userId })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        // Обновляем кнопку
+                        const button = document.querySelector(`button[data-tour="${tourId}"]`);
+                        if (button) {
+                            button.className = 'card-button reserved';
+                            button.disabled = true;
+                            button.innerHTML = `Зарезервировано (<span class="timer" data-expires="${result.expiresAt}">15:00</span>)`;
+
+                            // Запускаем таймер
+                            if (typeof startTimer === 'function') {
+                                const timerElement = button.querySelector('.timer');
+                                startTimer(timerElement, new Date(result.expiresAt));
+                            }
+                        }
+
+                        alert('Тур успешно зарезервирован на 15 минут!\nПерейдите в личный кабинет для подтверждения бронирования.');
+                    } else {
+                        alert(result.error || 'Ошибка резервирования');
+                    }
+                } catch (error) {
+                    console.error('Ошибка резервирования:', error);
+                    alert('Ошибка сети при резервировании');
+                }
+            }
+
+
+            `
+${tour.is_available ?
+                    `<button class="card-button" onclick="reserveTour(${tour.id})" 
+             data-tour="${tour.id}">
+        Добавить в корзину
+     </button>` :
+                    `<button class="card-button reserved" disabled>
+        🔒 Зарезервировано
+     </button>`
+                }
+`
+
+            // Добавьте в начало скрипта:
+            const CURRENT_USER_ID = 1; // Временная заглушка
+
+            // Функция применения фильтров
+            function applyFilters() {
+                console.log('⚙️ Применение фильтров...');
+
+                // Получаем значения из полей
+                const minPrice = document.getElementById('minPrice').value.trim();
+                const maxPrice = document.getElementById('maxPrice').value.trim();
+                const minDays = document.getElementById('minDays').value.trim();
+                const maxDays = document.getElementById('maxDays').value.trim();
+
+                console.log(`📝 Значения полей: minPrice=${minPrice}, maxPrice=${maxPrice}, minDays=${minDays}, maxDays=${maxDays}`);
+
+                // Получаем выбранные радио-кнопки
+                const daysSortRadio = document.querySelector('input[name="sort_days"]:checked');
+                const priceSortRadio = document.querySelector('input[name="price_sort"]:checked');
+                const hotToursCheckbox = document.getElementById('hot-tours-checkbox');
+
+                // Обновляем фильтры
+                currentFilters.minPrice = minPrice;
+                currentFilters.maxPrice = maxPrice;
+                currentFilters.minDays = minDays;
+                currentFilters.maxDays = maxDays;
+                currentFilters.sort_days = daysSortRadio ? daysSortRadio.value : 'all';
+                currentFilters.sort_price = priceSortRadio ? priceSortRadio.value : 'price_asc';
+                currentFilters.hot_tours = hotToursCheckbox.checked ? 'hot_only' : '';
+
+                console.log('📋 Обновленные фильтры:', currentFilters);
+
+                // Загружаем туры с новыми фильтрами
+                loadTours();
+            }
+
+            // Функция сброса всех фильтров
+            function clearAllFilters() {
+                console.log('🔄 Сброс всех фильтров');
+
+                // Сбрасываем только фильтры на странице results, сохраняя базовые параметры поиска
+                const baseFilters = {
+                    from: currentFilters.from,
+                    to: currentFilters.to,
+                    transport: currentFilters.transport,
+                    sort_days: 'all',
+                    sort_price: 'price_asc',
+                    minPrice: '',
+                    maxPrice: '',
+                    minDays: '',
+                    maxDays: '',
+                    hot_tours: ''
+                };
+
+                currentFilters = baseFilters;
+
+                // Сбрасываем форму
+                document.querySelector('input[name="sort_days"][value="all"]').checked = true;
+                document.querySelector('input[name="price_sort"][value="price_asc"]').checked = true;
+                document.getElementById('hot-tours-checkbox').checked = false;
+                document.getElementById('minPrice').value = '';
+                document.getElementById('maxPrice').value = '';
+                document.getElementById('minDays').value = '';
+                document.getElementById('maxDays').value = '';
+
+                console.log('📋 Фильтры после сброса:', currentFilters);
+
+                // Загружаем туры
+                loadTours();
+            }
+
+            // Функция обновления URL
+            function updateURL() {
+                const params = new URLSearchParams();
+
+                for (const [key, value] of Object.entries(currentFilters)) {
+                    if (value !== '' && value !== 'all') {
+                        params.append(key, value.toString());
+                    }
+                }
+
+                const newUrl = `/results?${params.toString()}`;
+                console.log(`🔗 Обновление URL: ${newUrl}`);
+                window.history.replaceState({}, '', newUrl);
+            }
+
+            // Функция обновления активных фильтров
+            function updateActiveFilters() {
+                const activeFiltersDiv = document.getElementById('active-filters');
+                const filterTagsDiv = document.getElementById('filter-tags');
+                filterTagsDiv.innerHTML = '';
+
+                let hasActiveFilters = false;
+
+                // Базовые параметры поиска
+                if (currentFilters.from) {
+                    filterTagsDiv.innerHTML += `<span class="active-filter-tag">Из: ${currentFilters.from}</span>`;
+                    hasActiveFilters = true;
+                }
+
+                if (currentFilters.to) {
+                    filterTagsDiv.innerHTML += `<span class="active-filter-tag">В: ${currentFilters.to}</span>`;
+                    hasActiveFilters = true;
+                }
+
+                if (currentFilters.transport) {
+                    filterTagsDiv.innerHTML += `<span class="active-filter-tag">Транспорт: ${currentFilters.transport}</span>`;
+                    hasActiveFilters = true;
+                }
+
+                // Сортировка по длительности (ИСПРАВЛЕНО: используем sort_days вместо days_sort)
+                if (currentFilters.sort_days === 'days_asc') {
+                    filterTagsDiv.innerHTML += `<span class="active-filter-tag">Сорт.: длина ↑</span>`;
+                    hasActiveFilters = true;
+                } else if (currentFilters.sort_days === 'days_desc') {
+                    filterTagsDiv.innerHTML += `<span class="active-filter-tag">Сорт.: длина ↓</span>`;
+                    hasActiveFilters = true;
+                }
+
+                // Сортировка по цене
+                if (currentFilters.sort_price === 'price_desc') {
+                    filterTagsDiv.innerHTML += `<span class="active-filter-tag">Сорт.: цена ↓</span>`;
+                    hasActiveFilters = true;
+                }
+
+                // Фильтры по диапазонам
+                if (currentFilters.minPrice) {
+                    filterTagsDiv.innerHTML += `<span class="active-filter-tag">От ${currentFilters.minPrice} BYN</span>`;
+                    hasActiveFilters = true;
+                }
+
+                if (currentFilters.maxPrice) {
+                    filterTagsDiv.innerHTML += `<span class="active-filter-tag">До ${currentFilters.maxPrice} BYN</span>`;
+                    hasActiveFilters = true;
+                }
+
+                if (currentFilters.minDays) {
+                    filterTagsDiv.innerHTML += `<span class="active-filter-tag">От ${currentFilters.minDays} дней</span>`;
+                    hasActiveFilters = true;
+                }
+
+                if (currentFilters.maxDays) {
+                    filterTagsDiv.innerHTML += `<span class="active-filter-tag">До ${currentFilters.maxDays} дней</span>`;
+                    hasActiveFilters = true;
+                }
+
+                // Горящие туры (ИСПРАВЛЕНО: используем hot_tours вместо hot_tours радио-значения)
+                if (currentFilters.hot_tours === 'hot_only') {
+                    filterTagsDiv.innerHTML += `<span class="active-filter-tag">Только горящие</span>`;
+                    hasActiveFilters = true;
+                }
+
+                // Показываем/скрываем блок активных фильтров
+                if (hasActiveFilters) {
+                    activeFiltersDiv.style.display = 'block';
+                    console.log('🏷️ Активные фильтры обновлены');
+                } else {
+                    activeFiltersDiv.style.display = 'none';
+                    console.log('🏷️ Нет активных фильтров');
+                }
+            }
+        </script>
+    </div>
+
+    <script>
+        function logout() {
+            if (confirm('Выйти из системы?')) {
+                window.location.href = '/logout';
+            }
+        }
+    </script>
+
+    <script src="/timer.js"></script>
+
+</body>
+
+</html>

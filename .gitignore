@@ -1,0 +1,7 @@
+﻿.idea/
+node_modules/
+*.iml
+modules.xml
+package-lock.json
+tourism-company-site.iml
+gitignore.txt

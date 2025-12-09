@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>2rism - Личный кабинет</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .account-page {
+            display: flex;
+            gap: 30px;
+            padding: 30px 0;
+            min-height: calc(100vh - 73px);
+        }
+        
+        .account-sidebar {
+            width: 250px;
+            background: var(--background-white);
+            padding: 20px;
+            border-radius: var(--radius-large);
+            box-shadow: var(--shadow-light);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+        
+        .account-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .account-nav a {
+            padding: 12px 16px;
+            color: var(--text-medium);
+            text-decoration: none;
+            border-radius: var(--radius-medium);
+            transition: all var(--transition-fast);
+        }
+        
+        .account-nav a:hover,
+        .account-nav a.active {
+            background: var(--primary-color);
+            color: var(--background-white);
+        }
+        
+        .account-content {
+            flex: 1;
+            background: var(--background-white);
+            padding: 30px;
+            border-radius: var(--radius-large);
+            box-shadow: var(--shadow-light);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .reservation-item {
+            background: var(--background-light);
+            padding: 20px;
+            border-radius: var(--radius-medium);
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .reservation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .reservation-timer {
+            background: #ff4757;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .reservation-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .admin-section {
+            border-top: 2px solid var(--border-color);
+            margin-top: 20px;
+            padding-top: 20px;
+        }
+        
+        .admin-section h4 {
+            color: var(--text-dark);
+            margin-bottom: 15px;
+        }
+        
+        .status-booked {
+            color: #00b894;
+            font-weight: bold;
+        }
+        
+        .text-muted {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .profile-form {
+            max-width: 500px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-medium);
+            font-size: 16px;
+        }
+        
+        .btn-confirm {
+            background: #00b894;
+            color: white;
+        }
+        
+        .btn-cancel {
+            background: #ff4757;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container header__inner">
+            <h1 class="logo">2rism</h1>
+            <nav class="nav">
+                <ul class="nav__list">
+                    <li><a href="/search">Поиск</a></li>
+                    <li><a href="/account" class="active">Личный кабинет</a></li>
+                    <li><a href="#" onclick="logout(); return false;">Выйти</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container account-page">
+        <!-- Боковое меню -->
+        <aside class="account-sidebar">
+            <div class="user-info">
+                <h3 id="user-name">Загрузка...</h3>
+                <p id="user-email" class="text-muted">Загрузка...</p>
+            </div>
+            
+            <nav class="account-nav">
+                <a href="#profile" class="active">Профиль</a>
+                <a href="#reservations">Мои резервации</a>
+                <a href="#bookings">Мои бронирования</a>
+                
+                <!-- Админские ссылки (только для администратора) -->
+                <div id="admin-links" class="admin-section" style="display: none;">
+                    <h4>Администрирование</h4>
+                    <a href="#admin-tours">Управление турами</a>
+                    <a href="#admin-users">Управление пользователями</a>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Основной контент -->
+        <main class="account-content">
+            <!-- Профиль -->
+            <div id="profile" class="tab-content active">
+                <h2>Мой профиль</h2>
+                <form id="profile-form" class="profile-form">
+                    <div class="form-group">
+                        <label>Имя</label>
+                        <input type="text" id="name" name="name" placeholder="Ваше имя">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="email" name="email" placeholder="Email" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Телефон</label>
+                        <input type="tel" id="phone" name="phone" placeholder="+375 (XX) XXX-XX-XX">
+                    </div>
+                    <button type="submit" class="btn">Сохранить изменения</button>
+                </form>
+            </div>
+            
+            <!-- Активные резервации -->
+            <div id="reservations" class="tab-content">
+                <h2>Активные резервации</h2>
+                <p class="text-muted">Туры зарезервированы на 15 минут. Подтвердите бронирование до истечения времени.</p>
+                <div id="reservations-list">
+                    <!-- Загрузка через JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Подтвержденные бронирования -->
+            <div id="bookings" class="tab-content">
+                <h2>Мои бронирования</h2>
+                <div id="bookings-list">
+                    <!-- Загрузка через JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Админ: Управление турами -->
+            <div id="admin-tours" class="tab-content">
+                <h2>Управление турами</h2>
+                <p>Функционал администратора будет добавлен в следующем этапе.</p>
+            </div>
+            
+            <!-- Админ: Управление пользователями -->
+            <div id="admin-users" class="tab-content">
+                <h2>Управление пользователями</h2>
+                <p>Функционал администратора будет добавлен в следующем этапе.</p>
+            </div>
+        </main>
+    </div>
+
+    <script src="/timer.js"></script>
+    <script>
+        // Глобальные переменные
+        let currentUserId = null;
+        
+        // Проверка авторизации
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/user/current');
+                if (!response.ok) {
+                    window.location.href = '/login';
+                    return false;
+                }
+                return true;
+            } catch (error) {
+                window.location.href = '/login';
+                return false;
+            }
+        }
+        
+        // Выход из системы
+        function logout() {
+            if (confirm('Выйти из системы?')) {
+                window.location.href = '/logout';
+            }
+        }
+        
+        // Загрузка данных пользователя
+        async function loadUserProfile() {
+            if (!await checkAuth()) return;
+            
+            try {
+                const response = await fetch('/api/user/current');
+                if (!response.ok) throw new Error('Ошибка загрузки профиля');
+                
+                const user = await response.json();
+                currentUserId = user.id;
+                
+                // Отображаем данные
+                document.getElementById('user-name').textContent = user.name || user.email;
+                document.getElementById('user-email').textContent = user.email;
+                
+                document.getElementById('name').value = user.name || '';
+                document.getElementById('email').value = user.email;
+                document.getElementById('phone').value = user.phone || '';
+                
+                // Показываем админские ссылки если пользователь админ
+                if (user.role === 'admin') {
+                    document.getElementById('admin-links').style.display = 'block';
+                }
+                
+            } catch (error) {
+                console.error('Ошибка загрузки профиля:', error);
+                alert('Ошибка загрузки профиля');
+            }
+        }
+        
+        // Загрузка активных резервирований
+        async function loadReservations() {
+            if (!await checkAuth()) return;
+            
+            try {
+                const response = await fetch('/api/user/reservations');
+                if (!response.ok) throw new Error('Ошибка загрузки резервирований');
+                
+                const reservations = await response.json();
+                const container = document.getElementById('reservations-list');
+                
+                if (reservations.length === 0) {
+                    container.innerHTML = '<p>Нет активных резервирований</p>';
+                    return;
+                }
+                
+                container.innerHTML = reservations.map(reservation => `
+                    <div class="reservation-item" data-id="${reservation.id}">
+                        <div class="reservation-header">
+                            <h4>${reservation.from_city} → ${reservation.to_city}</h4>
+                            <span class="reservation-timer timer" 
+                                  data-expires="${reservation.expires_at}">
+                                ${calculateTimeLeft(reservation.expires_at)}
+                            </span>
+                        </div>
+                        <p><strong>${reservation.title}</strong></p>
+                        <p>${reservation.days} дней • ${reservation.transport} • ${reservation.price} BYN</p>
+                        <p>Зарезервировано: ${new Date(reservation.created_at).toLocaleString('ru-RU')}</p>
+                        <div class="reservation-actions">
+                            <button class="btn btn-confirm" onclick="confirmReservation(${reservation.id})">
+                                Подтвердить бронь
+                            </button>
+                            <button class="btn btn-cancel" onclick="cancelReservation(${reservation.id})">
+                                Отменить
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // Запускаем таймеры
+                document.querySelectorAll('.timer').forEach(timer => {
+                    if (typeof startTimer === 'function') {
+                        startTimer(timer, new Date(timer.dataset.expires));
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Ошибка загрузки резервирований:', error);
+                document.getElementById('reservations-list').innerHTML = 
+                    '<p>Ошибка загрузки резервирований</p>';
+            }
+        }
+        
+        // Расчет оставшегося времени
+        function calculateTimeLeft(expiresAt) {
+            const now = new Date();
+            const expires = new Date(expiresAt);
+            const diff = expires - now;
+            
+            if (diff <= 0) return '00:00';
+            
+            const minutes = Math.floor(diff / 1000 / 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+            
+            return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        // Подтверждение бронирования
+        async function confirmReservation(reservationId) {
+            if (!confirm('Подтвердить бронирование? После подтверждения тур будет забронирован.')) return;
+            
+            try {
+                const response = await fetch('/api/reservation/confirm', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reservationId })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Бронирование подтверждено!');
+                    loadReservations();
+                    loadBookings();
+                } else {
+                    alert(result.error || 'Ошибка подтверждения');
+                }
+            } catch (error) {
+                console.error('Ошибка подтверждения:', error);
+                alert('Ошибка подтверждения бронирования');
+            }
+        }
+        
+        // Отмена резервирования
+        async function cancelReservation(reservationId) {
+            if (!confirm('Отменить резервирование? Тур станет доступен для других пользователей.')) return;
+            
+            try {
+                const response = await fetch('/api/reservation/cancel', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reservationId })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Резервирование отменено');
+                    loadReservations();
+                } else {
+                    alert(result.error || 'Ошибка отмены');
+                }
+            } catch (error) {
+                console.error('Ошибка отмены:', error);
+                alert('Ошибка отмены резервирования');
+            }
+        }
+        
+        // Загрузка подтвержденных бронирований
+        async function loadBookings() {
+            if (!await checkAuth()) return;
+            
+            try {
+                const response = await fetch('/api/user/bookings');
+                if (!response.ok) throw new Error('Ошибка загрузки бронирований');
+                
+                const bookings = await response.json();
+                const container = document.getElementById('bookings-list');
+                
+                if (bookings.length === 0) {
+                    container.innerHTML = '<p>Нет подтвержденных бронирований</p>';
+                    return;
+                }
+                
+                container.innerHTML = bookings.map(booking => `
+                    <div class="reservation-item">
+                        <h4>${booking.from_city} → ${booking.to_city}</h4>
+                        <p><strong>${booking.title}</strong></p>
+                        <p>${booking.days} дней • ${booking.transport} • ${booking.price} BYN</p>
+                        <p>Забронировано: ${new Date(booking.booked_at).toLocaleString('ru-RU')}</p>
+                        <p>Статус: <span class="status-booked">Подтверждено</span></p>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Ошибка загрузки бронирований:', error);
+                document.getElementById('bookings-list').innerHTML = 
+                    '<p>Ошибка загрузки бронирований</p>';
+            }
+        }
+        
+        // Обновление профиля
+        document.getElementById('profile-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value
+            };
+            
+            try {
+                const response = await fetch('/api/user/update', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Профиль успешно обновлен!');
+                    loadUserProfile();
+                } else {
+                    alert(result.error || 'Ошибка обновления профиля');
+                }   
+            } catch (error) {
+                console.error('Ошибка обновления:', error);
+                alert('Ошибка обновления профиля');
+            }
+        });
+        
+        // Навигация по вкладкам
+        document.querySelectorAll('.account-nav a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Убираем активный класс у всех
+                document.querySelectorAll('.account-nav a').forEach(a => a.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+                
+                // Добавляем активный класс текущему
+                link.classList.add('active');
+                
+                const targetId = link.getAttribute('href').substring(1);
+                document.getElementById(targetId).classList.add('active');
+                
+                // Загружаем данные для вкладки
+                switch(targetId) {
+                    case 'reservations':
+                        loadReservations();
+                        break;
+                    case 'bookings':
+                        loadBookings();
+                        break;
+                    case 'admin-tours':
+                        // Загрузка админки будет в следующем этапе
+                        break;
+                    case 'admin-users':
+                        // Загрузка админки будет в следующем этапе
+                        break;
+                }
+            });
+        });
+        
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (await checkAuth()) {
+                loadUserProfile();
+                loadReservations();
+                loadBookings();
+            }
+        });
+    </script>
+</body>
+</html>

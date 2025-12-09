@@ -1,55 +1,95 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <title>2rism – Поиск туров</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <header class="header">
-    <div class="container header__inner">
-      <h1 class="logo">2rism</h1>
-      <nav class="nav">
-        <ul class="nav__list">
-          <li><a href="#">Поиск</a></li>
-          <li><a href="#">Личный кабинет</a></li>
-          <li><a href="#">Помощь</a></li>
-        </ul>
-      </nav>
-    </div>
-  </header>
 
-  <main class="main">
-    <section class="search">
-      <h2 class="search__title">Найдите самые выгодные путевки!</h2>
-      <form class="search__form">
-        <div class="form__row">
-          <label>
-            Откуда
-            <input type="text" name="from" placeholder="Город отправления">
-          </label>
-          <label>
-            Куда
-            <input type="text" name="to" placeholder="Пункт назначения">
-          </label>
+<head>
+    <meta charset="UTF-8">
+    <title>2rism – Поиск туров</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header class="header">
+        <div class="container header__inner">
+            <h1 class="logo">2rism</h1>
+            <nav class="nav">
+                <ul class="nav__list">
+                    <li><a href="/search" class="active">Поиск</a></li>
+                    <li><a href="/account">Личный кабинет</a></li>
+                    <li><a href="#" onclick="logout(); return false;">Выйти</a></li>
+                </ul>
+            </nav>
         </div>
-        <div class="form__row">
-          <label>
-            Транспорт
-            <select name="transport">
-              <option>Самолёт</option>
-              <option>Поезд</option>
-              <option>Автобус</option>
-            </select>
-          </label>
-          <label>
-            Время пребывания
-            <input type="number" name="days" placeholder="Количество дней">
-          </label>
-        </div>
-        <button type="submit" class="btn">Найти тур</button>
-      </form>
-    </section>
-  </main>
+    </header>
+    <main class="main">
+        <section class="search">
+            <h2 class="search__title">Найдите самые выгодные путевки!</h2>
+
+            <!-- Форма поиска -->
+            <form class="search__form" action="/search-tour" method="POST" id="search-form">
+                <div class="form__row">
+                    <label>
+                        Откуда
+                        <input type="text" name="from" placeholder="Город отправления" id="from-input">
+                    </label>
+                    <label>
+                        Куда
+                        <input type="text" name="to" placeholder="Пункт назначения" id="to-input">
+                    </label>
+                </div>
+                <div class="form__row">
+                    <label>
+                        Транспорт
+                        <select name="transport" id="transport-select">
+                            <option value="">Любой транспорт</option>
+                            <option>Самолёт</option>
+                            <option>Поезд</option>
+                            <option>Автобус</option>
+                        </select>
+                    </label>
+                    <!-- УДАЛЕНО поле "Время пребывания" -->
+                </div>
+                <button type="submit" class="btn">Найти тур</button>
+            </form>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchForm = document.getElementById('search-form');
+
+            // Проверяем, есть ли сохраненные значения в localStorage
+            const savedSearch = JSON.parse(localStorage.getItem('lastSearch') || '{}');
+            if (savedSearch.from) document.getElementById('from-input').value = savedSearch.from;
+            if (savedSearch.to) document.getElementById('to-input').value = savedSearch.to;
+            if (savedSearch.transport) document.getElementById('transport-select').value = savedSearch.transport;
+
+            // Сохраняем данные формы при отправке
+            searchForm.addEventListener('submit', function (e) {
+                const formData = {
+                    from: document.getElementById('from-input').value,
+                    to: document.getElementById('to-input').value,
+                    transport: document.getElementById('transport-select').value
+                };
+
+                localStorage.setItem('lastSearch', JSON.stringify(formData));
+            });
+        });
+    </script>
+
+
+
+    <script>
+        function logout() {
+            if (confirm('Выйти из системы?')) {
+                window.location.href = '/logout';
+            }
+        }
+    </script>
+
+
 </body>
+
 </html>
